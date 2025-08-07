@@ -25,29 +25,89 @@ FONT_MAPPING = {
     'Source Sans Pro': 'Arial'
 }
 
-def map_figma_font(figma_font):
+def map_figma_font(figma_font_name):
     """
-    Map Figma font to PowerPoint-compatible font
+    Map Figma font names to PowerPoint-compatible font names
     
     Args:
-        figma_font: Font family name from Figma
+        figma_font_name: Font name from Figma
         
     Returns:
         PowerPoint-compatible font name
     """
-    if not figma_font:
+    if not figma_font_name:
         return 'Arial'
     
-    # Try exact match first
-    if figma_font in FONT_MAPPING:
-        return FONT_MAPPING[figma_font]
+    # Normalize font name (remove extra spaces, convert to lowercase)
+    font_lower = figma_font_name.lower().strip()
     
-    # Try partial match for font families with weights
-    for figma_key, ppt_font in FONT_MAPPING.items():
-        if figma_key.lower() in figma_font.lower():
+    # Direct mappings for common fonts
+    font_mappings = {
+        # Inter font family
+        'inter': 'Calibri',
+        'inter tight': 'Calibri',  # Your specific font
+        'inter variable': 'Calibri',
+        'inter regular': 'Calibri',
+        'inter medium': 'Calibri',
+        'inter bold': 'Calibri',
+        'inter semi bold': 'Calibri',
+        'inter semibold': 'Calibri',
+        
+        # Google Fonts
+        'roboto': 'Calibri',
+        'open sans': 'Calibri',
+        'lato': 'Calibri',
+        'montserrat': 'Calibri',
+        'source sans pro': 'Calibri',
+        'poppins': 'Calibri',
+        'nunito': 'Calibri',
+        'work sans': 'Calibri',
+        
+        # System fonts
+        'sf pro': 'Calibri',
+        'sf pro display': 'Calibri',
+        'sf pro text': 'Calibri',
+        'helvetica neue': 'Arial',
+        'helvetica': 'Arial',
+        'system-ui': 'Calibri',
+        '-apple-system': 'Calibri',
+        
+        # Serif fonts
+        'times new roman': 'Times New Roman',
+        'times': 'Times New Roman',
+        'georgia': 'Georgia',
+        'serif': 'Times New Roman',
+        
+        # Monospace fonts
+        'monaco': 'Consolas',
+        'menlo': 'Consolas',
+        'courier new': 'Courier New',
+        'courier': 'Courier New',
+        'monospace': 'Consolas',
+        
+        # Default mappings
+        'sans-serif': 'Calibri',
+        'arial': 'Arial',
+        'calibri': 'Calibri',
+        'verdana': 'Verdana',
+        'tahoma': 'Tahoma',
+        'trebuchet ms': 'Trebuchet MS',
+    }
+    
+    # Check direct mapping first
+    if font_lower in font_mappings:
+        mapped_font = font_mappings[font_lower]
+        print(f"    Font mapping: '{figma_font_name}' -> '{mapped_font}'")
+        return mapped_font
+    
+    # Check partial matches for font families
+    for figma_key, ppt_font in font_mappings.items():
+        if figma_key in font_lower or font_lower.startswith(figma_key):
+            print(f"    Font mapping (partial): '{figma_font_name}' -> '{ppt_font}'")
             return ppt_font
     
-    # Default fallback
+    # Fallback to Arial for unknown fonts
+    print(f"    Font mapping (fallback): '{figma_font_name}' -> 'Arial'")
     return 'Arial'
 
 def map_text_alignment(figma_align):

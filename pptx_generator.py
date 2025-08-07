@@ -72,7 +72,8 @@ def create_presentation(figma_data):
                 continue
         
         # Add slide metadata
-        add_slide_metadata(slide, slide_data, slide_index + 1, len(processed_data['slides']), config)
+        # add_slide_metadata(slide, slide_data, slide_index + 1, len(processed_data['slides']), config)
+        print(f"  Skipping slide metadata (frame name & page numbers) to match Figma design")
     
     # Save to buffer
     buffer = io.BytesIO()
@@ -148,10 +149,11 @@ def add_text_layer(slide, layer, positioning, config):
     # Font and size
     font_size = style.get('fontSize', 16)
     scaled_font_size = scale_font_size(font_size, positioning['scale'])
+    font_family = style.get('fontFamily', 'Arial')
     
     run = p.runs[0] if p.runs else p.runs.add()
     run.font.size = Pt(max(8, scaled_font_size))  # Minimum 8pt
-    run.font.name = map_figma_font(style.get('fontFamily', 'Arial'))
+    run.font.name = map_figma_font(font_family)
     
     # Font weight and style
     font_weight = style.get('fontWeight', 'Regular')
@@ -170,6 +172,8 @@ def add_text_layer(slide, layer, positioning, config):
     # Vertical alignment
     vertical_align = style.get('verticalAlign', 'top')
     text_frame.vertical_anchor = map_vertical_alignment(vertical_align)
+    
+    print(f"    Text formatting: font='{font_family}'->'{ run.font.name}', size={font_size}->{scaled_font_size:.1f}pt, color='{color_hex}', weight='{font_weight}'")
     
     # Text box properties
     text_frame.margin_left = Inches(0.05)
@@ -237,7 +241,18 @@ def add_shape_layer(slide, layer, positioning, config):
         stroke_pt = max(0.25, stroke_width * positioning['scale'])
         shape.line.width = Pt(stroke_pt)
     else:
-        shape.line.fill.background()  # No stroke
+        # Explicitly remove any line/border
+        shape.line.fill.background()
+        
+    # Remove any shadow or effects
+    try:
+        # Ensure no shadow effects
+        if hasattr(shape, 'shadow'):
+            shape.shadow.inherit = False
+    except:
+        pass  # Ignore if shadow property doesn't exist
+    
+    print(f"    Shape styling: fill='{fill_color}', stroke='{stroke_color}' ({stroke_width}px)")
 
 def add_image_layer(slide, layer, positioning, config):
     """

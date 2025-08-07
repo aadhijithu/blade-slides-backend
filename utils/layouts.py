@@ -77,6 +77,8 @@ def calculate_layer_position(layer, positioning, config):
         y = positioning['offset_y'] + (rel_pos['y'] * positioning['available_height'])
         width = rel_pos['width'] * positioning['available_width']
         height = rel_pos['height'] * positioning['available_height']
+        
+        print(f"    Relative positioning: {layer['name']} -> x:{x:.2f}, y:{y:.2f}, w:{width:.2f}, h:{height:.2f}")
     
     # Fallback to absolute positioning with scaling
     elif layer.get('position'):
@@ -87,6 +89,8 @@ def calculate_layer_position(layer, positioning, config):
         y = positioning['offset_y'] + (pos['y'] * scale)
         width = pos['width'] * scale
         height = pos['height'] * scale
+        
+        print(f"    Absolute positioning: {layer['name']} -> x:{x:.2f}, y:{y:.2f}, w:{width:.2f}, h:{height:.2f} (scale:{scale:.3f})")
     
     else:
         # No position data - place at origin with minimum size
@@ -94,14 +98,20 @@ def calculate_layer_position(layer, positioning, config):
         y = positioning['offset_y']
         width = 1.0
         height = 0.5
+        
+        print(f"    No position data: {layer['name']} -> using default position")
     
     # Ensure minimum sizes for visibility
     width = max(width, 0.1)
     height = max(height, 0.1)
     
     # Boundary checks to prevent elements going off-slide
+    original_x, original_y = x, y
     x = max(0, min(x, positioning['ppt_width'] - width))
     y = max(0, min(y, positioning['ppt_height'] - height))
+    
+    if x != original_x or y != original_y:
+        print(f"    Position adjusted for bounds: {layer['name']} -> x:{original_x:.2f}->{x:.2f}, y:{original_y:.2f}->{y:.2f}")
     
     return {
         'x': x,

@@ -57,12 +57,15 @@ def create_presentation(figma_data):
         if slide_data.get('background'):
             set_slide_background(slide, slide_data['background'], config)
         
-        # Process layers (reverse order for proper z-stacking)
+        # Process layers (correct order for proper z-stacking)
         layers = slide_data['layers']
-        reversed_layers = sorted(layers, key=lambda x: x.get('zIndex', 0), reverse=True)
+        sorted_layers = sorted(layers, key=lambda x: x.get('zIndex', 0), reverse=False)
         
-        for layer in reversed_layers:
+        print(f"Processing {len(sorted_layers)} layers in z-order...")
+        
+        for layer in sorted_layers:
             try:
+                print(f"  Processing layer: {layer['name']} (z:{layer.get('zIndex', 0)}, type:{layer['type']})")
                 process_layer(slide, layer, positioning, config)
             except Exception as e:
                 print(f"Error processing layer {layer['name']}: {str(e)}")
@@ -82,7 +85,7 @@ def create_presentation(figma_data):
 def process_layer(slide, layer, positioning, config):
     """
     Process a single layer and add it to the slide
-    
+
     Args:
         slide: PowerPoint slide object
         layer: Layer data from Figma
@@ -90,15 +93,32 @@ def process_layer(slide, layer, positioning, config):
         config: Configuration settings
     """
     layer_type = layer.get('type')
+    layer_name = layer.get('name', 'Unnamed Layer')
     
+    # Validate layer data
+    if not layer_type:
+        print(f"  Warning: Skipping layer '{layer_name}' - no type specified")
+        return
+        
+    if layer_type not in ['TEXT', 'SHAPE', 'IMAGE']:
+        print(f"  Warning: Skipping layer '{layer_name}' - unknown type: {layer_type}")
+        return
+
     if layer_type == 'TEXT':
+        content = layer.get('content', '').strip()
+        if not content:
+            print(f"  Warning: Skipping text layer '{layer_name}' - no content")
+            return
         add_text_layer(slide, layer, positioning, config)
     elif layer_type == 'SHAPE':
         add_shape_layer(slide, layer, positioning, config)
     elif layer_type == 'IMAGE':
+        if not layer.get('imageData'):
+            print(f"  Warning: Skipping image layer '{layer_name}' - no image data")
+            return
         add_image_layer(slide, layer, positioning, config)
-    else:
-        print(f"Unknown layer type: {layer_type}")
+    
+    print(f"    ✅ Successfully added {layer_type} layer: {layer_name}")
 
 def add_text_layer(slide, layer, positioning, config):
     """

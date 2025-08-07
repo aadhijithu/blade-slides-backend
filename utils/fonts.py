@@ -4,27 +4,6 @@ Font mapping and text formatting utilities
 
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 
-# Figma to PowerPoint font mapping
-FONT_MAPPING = {
-    'Inter': 'Calibri',
-    'Roboto': 'Arial',
-    'Helvetica': 'Arial',
-    'SF Pro Display': 'Segoe UI',
-    'SF Pro Text': 'Segoe UI',
-    'Times': 'Times New Roman',
-    'Times New Roman': 'Times New Roman',
-    'Georgia': 'Georgia',
-    'Courier': 'Courier New',
-    'Courier New': 'Courier New',
-    'Arial': 'Arial',
-    'Calibri': 'Calibri',
-    'Segoe UI': 'Segoe UI',
-    'Open Sans': 'Calibri',
-    'Lato': 'Calibri',
-    'Montserrat': 'Calibri',
-    'Source Sans Pro': 'Arial'
-}
-
 def map_figma_font(figma_font_name):
     """
     Map Figma font names to PowerPoint-compatible font names
@@ -43,34 +22,40 @@ def map_figma_font(figma_font_name):
     
     # Direct mappings for common fonts
     font_mappings = {
-        # Inter font family
-        'inter': 'Calibri',
-        'inter tight': 'Calibri',  # Your specific font
-        'inter variable': 'Calibri',
-        'inter regular': 'Calibri',
-        'inter medium': 'Calibri',
-        'inter bold': 'Calibri',
-        'inter semi bold': 'Calibri',
-        'inter semibold': 'Calibri',
+        # Inter font family - Keep as Inter since it's available in Google Slides
+        'inter': 'Inter',
+        'inter tight': 'Inter',  # Your specific font - keep as Inter
+        'inter variable': 'Inter',
+        'inter regular': 'Inter',
+        'inter medium': 'Inter',
+        'inter bold': 'Inter',
+        'inter semi bold': 'Inter',
+        'inter semibold': 'Inter',
         
-        # Google Fonts
-        'roboto': 'Calibri',
-        'open sans': 'Calibri',
-        'lato': 'Calibri',
-        'montserrat': 'Calibri',
-        'source sans pro': 'Calibri',
-        'poppins': 'Calibri',
-        'nunito': 'Calibri',
-        'work sans': 'Calibri',
+        # TASA ORBIT -> Sora (available in Google Slides)
+        'tasa orbit': 'Sora',
+        'tasa-orbit': 'Sora',
+        'tasaorbit': 'Sora',
         
-        # System fonts
-        'sf pro': 'Calibri',
-        'sf pro display': 'Calibri',
-        'sf pro text': 'Calibri',
+        # Google Fonts (commonly available)
+        'roboto': 'Roboto',
+        'open sans': 'Open Sans',
+        'lato': 'Lato',
+        'montserrat': 'Montserrat',
+        'source sans pro': 'Source Sans Pro',
+        'poppins': 'Poppins',
+        'nunito': 'Nunito',
+        'work sans': 'Work Sans',
+        'sora': 'Sora',
+        
+        # System fonts - fallback to Google Slides compatible fonts
+        'sf pro': 'Inter',
+        'sf pro display': 'Inter',
+        'sf pro text': 'Inter',
         'helvetica neue': 'Arial',
         'helvetica': 'Arial',
-        'system-ui': 'Calibri',
-        '-apple-system': 'Calibri',
+        'system-ui': 'Inter',
+        '-apple-system': 'Inter',
         
         # Serif fonts
         'times new roman': 'Times New Roman',
@@ -79,14 +64,14 @@ def map_figma_font(figma_font_name):
         'serif': 'Times New Roman',
         
         # Monospace fonts
-        'monaco': 'Consolas',
-        'menlo': 'Consolas',
+        'monaco': 'Roboto Mono',
+        'menlo': 'Roboto Mono',
         'courier new': 'Courier New',
         'courier': 'Courier New',
-        'monospace': 'Consolas',
+        'monospace': 'Roboto Mono',
         
         # Default mappings
-        'sans-serif': 'Calibri',
+        'sans-serif': 'Inter',
         'arial': 'Arial',
         'calibri': 'Calibri',
         'verdana': 'Verdana',

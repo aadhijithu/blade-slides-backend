@@ -12,7 +12,9 @@ from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
 from PIL import Image
 from figma_processor import process_figma_data
-from utils import fonts, colors, layouts
+from utils.fonts import map_figma_font, map_text_alignment, map_vertical_alignment
+from utils.colors import hex_to_rgb
+from utils.layouts import calculate_positioning, calculate_layer_position, scale_font_size
 
 def create_presentation(figma_data):
     """
@@ -49,7 +51,7 @@ def create_presentation(figma_data):
         slide = prs.slides.add_slide(blank_slide_layout)
         
         # Calculate precise positioning
-        positioning = layouts.calculate_positioning(slide_data, config)
+        positioning = calculate_positioning(slide_data, config)
         
         # Set slide background
         if slide_data.get('background'):
@@ -103,7 +105,7 @@ def add_text_layer(slide, layer, positioning, config):
     Add a text layer to the slide with precise formatting
     """
     # Calculate position
-    pos = layouts.calculate_layer_position(layer, positioning, config)
+    pos = calculate_layer_position(layer, positioning, config)
     
     # Create text box
     textbox = slide.shapes.add_textbox(
@@ -125,11 +127,11 @@ def add_text_layer(slide, layer, positioning, config):
     
     # Font and size
     font_size = style.get('fontSize', 16)
-    scaled_font_size = layouts.scale_font_size(font_size, positioning['scale'])
+    scaled_font_size = scale_font_size(font_size, positioning['scale'])
     
     run = p.runs[0] if p.runs else p.runs.add()
     run.font.size = Pt(max(8, scaled_font_size))  # Minimum 8pt
-    run.font.name = fonts.map_figma_font(style.get('fontFamily', 'Arial'))
+    run.font.name = map_figma_font(style.get('fontFamily', 'Arial'))
     
     # Font weight and style
     font_weight = style.get('fontWeight', 'Regular')
@@ -138,16 +140,16 @@ def add_text_layer(slide, layer, positioning, config):
     
     # Text color
     color_hex = style.get('color', '#000000')
-    rgb = colors.hex_to_rgb(color_hex)
+    rgb = hex_to_rgb(color_hex)
     run.font.color.rgb = RGBColor(rgb[0], rgb[1], rgb[2])
     
     # Text alignment
     text_align = style.get('textAlign', 'left')
-    p.alignment = fonts.map_text_alignment(text_align)
+    p.alignment = map_text_alignment(text_align)
     
     # Vertical alignment
     vertical_align = style.get('verticalAlign', 'top')
-    text_frame.vertical_anchor = fonts.map_vertical_alignment(vertical_align)
+    text_frame.vertical_anchor = map_vertical_alignment(vertical_align)
     
     # Text box properties
     text_frame.margin_left = Inches(0.05)
@@ -162,7 +164,7 @@ def add_shape_layer(slide, layer, positioning, config):
     Add a shape layer to the slide
     """
     # Calculate position
-    pos = layouts.calculate_layer_position(layer, positioning, config)
+    pos = calculate_layer_position(layer, positioning, config)
     
     # Get shape properties
     style = layer.get('style', {})
@@ -198,7 +200,7 @@ def add_shape_layer(slide, layer, positioning, config):
     # Apply fill
     fill_color = style.get('fill', 'transparent')
     if fill_color and fill_color != 'transparent' and fill_color != 'none':
-        rgb = colors.hex_to_rgb(fill_color)
+        rgb = hex_to_rgb(fill_color)
         shape.fill.solid()
         shape.fill.fore_color.rgb = RGBColor(rgb[0], rgb[1], rgb[2])
     else:
@@ -209,7 +211,7 @@ def add_shape_layer(slide, layer, positioning, config):
     stroke_width = style.get('strokeWidth', 0)
     
     if stroke_color and stroke_color != 'transparent' and stroke_width > 0:
-        rgb = colors.hex_to_rgb(stroke_color)
+        rgb = hex_to_rgb(stroke_color)
         shape.line.color.rgb = RGBColor(rgb[0], rgb[1], rgb[2])
         # Convert pixels to points (approximate)
         stroke_pt = max(0.25, stroke_width * positioning['scale'])
@@ -235,7 +237,7 @@ def add_image_layer(slide, layer, positioning, config):
         image_stream = io.BytesIO(image_bytes)
         
         # Calculate position
-        pos = layouts.calculate_layer_position(layer, positioning, config)
+        pos = calculate_layer_position(layer, positioning, config)
         
         # Add image to slide
         slide.shapes.add_picture(
@@ -260,7 +262,7 @@ def set_slide_background(slide, background, config):
     
     if bg_type == 'SOLID':
         color_hex = background.get('color', '#FFFFFF')
-        rgb = colors.hex_to_rgb(color_hex)
+        rgb = hex_to_rgb(color_hex)
         slide.background.fill.solid()
         slide.background.fill.fore_color.rgb = RGBColor(rgb[0], rgb[1], rgb[2])
     
